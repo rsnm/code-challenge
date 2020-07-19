@@ -44,18 +44,53 @@ class CompaniesControllerTest < ApplicationSystemTestCase
     visit new_company_path
 
     within("form#new_company") do
-      fill_in("company_name", with: "New Test Company")
-      fill_in("company_zip_code", with: "28173")
-      fill_in("company_phone", with: "5553335555")
-      fill_in("company_email", with: "new_test_company@test.com")
+      fill_in("company_name", with: "Test Company")
+      fill_in("company_zip_code", with: "99501")
+      fill_in("company_phone", with: "555555555")
+      fill_in("company_email", with: "test_company@getmainstreet.com")
       click_button "Create Company"
     end
 
+  test "Delete" do
+    visit company_path(@company)
+    assert_difference('Company.count', -1) do
+      click_link "Delete"
+    end
+  end
     assert_text "Saved"
 
     last_company = Company.last
-    assert_equal "New Test Company", last_company.name
-    assert_equal "28173", last_company.zip_code
+    assert_equal "Test Company", last_company.name
+    assert_equal "99501", last_company.zip_code
+  end
+
+test "Valid Email for Company" do
+  visit new_company_path
+
+  within("form#new_company") do
+    fill_in("company_name", with: "Test Company")
+    fill_in("company_zip_code", with: "99501")
+    fill_in("company_phone", with: "555555555")
+    fill_in("company_email", with: "test_company@getmainstreet.com")
+    assert_no_difference('Company.count') do
+      click_button 'Create Company'
+    end
+  end
+end
+
+test "Update: city and state after zipcode update" do
+
+    within("form#edit_company_#{@company.id}") do
+      fill_in("company_zip_code", with: "99501")
+      click_button "Update Company"
+    end
+
+    assert_text "Changes Saved"
+
+    @company.reload
+    assert_equal "99501", @company.zip_code
+    assert_equal "Alaska", @company.city
+    assert_equal "AK", @company.state
   end
 
 end

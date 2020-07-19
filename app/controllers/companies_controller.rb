@@ -17,6 +17,7 @@ class CompaniesController < ApplicationController
     if @company.save
       redirect_to companies_path, notice: "Saved"
     else
+      flash[:errors] = @company.errors.full_messages.join(', ')
       render :new
     end
   end
@@ -28,10 +29,19 @@ class CompaniesController < ApplicationController
     if @company.update(company_params)
       redirect_to companies_path, notice: "Changes Saved"
     else
+      flash[:errors] = @company.errors.full_messages.join(', ')
       render :edit
     end
-  end  
+  end
 
+  def destroy
+    @company.destroy
+    respond_to do |format|
+      format.html { redirect_to companies_url, notice: 'Company was successfully deleted.' }
+      format.json { head :no_content }
+    end
+  end
+  
   private
 
   def company_params
